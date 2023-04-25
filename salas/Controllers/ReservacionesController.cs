@@ -96,7 +96,7 @@ namespace salas.Controllers
             //se recorre fila x fila de lo que se obtubo de la bd y se usa la funcion comparar para si la fecha Inicial que el usuario quiere ya esta reservada
             foreach (var reserva in result)
             {
-                var revision = comprobar(reserva.FechaInicial, reserva.FechaFinal, reservaciones.FechaInicial);
+                var revision = Comprobar(reserva.FechaInicial, reserva.FechaFinal, reservaciones.FechaInicial);
                 if (revision)
                 {
                     Reservado = true;
@@ -105,7 +105,7 @@ namespace salas.Controllers
             //se recorre fila x fila de lo que se obtubo de la bd y se usa la funcion comparar para si la fecha Inicial que el usuario quiere ya esta reservada
             foreach (var reserva in result)
             {
-                var revision = comprobar(reserva.FechaInicial, reserva.FechaFinal, reservaciones.FechaFinal);
+                var revision = Comprobar(reserva.FechaInicial, reserva.FechaFinal, reservaciones.FechaFinal);
                 if (revision)
                 {
                     Reservado = true;
@@ -115,10 +115,20 @@ namespace salas.Controllers
             if (Reservado == false){
                 _context.reservaciones.Add(reservaciones);
                 await _context.SaveChangesAsync();
+
+                return CreatedAtAction("GetReservaciones", new { id = reservaciones.Id }, reservaciones);
+            }
+            else{
+                return Problem("Reservacion ocupada.");
             }
             
+            
+            
+        }
 
-            return CreatedAtAction("GetReservaciones", new { id = reservaciones.Id }, reservaciones);
+        public bool Comprobar(DateTime fechaInicio, DateTime fechaFin, DateTime fecha)
+        {
+            return fecha.CompareTo(fechaInicio) >= 0 && fecha.CompareTo(fechaFin) <= 0;
         }
 
         // DELETE: api/Reservaciones/5
